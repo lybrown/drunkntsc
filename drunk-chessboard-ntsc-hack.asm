@@ -1047,15 +1047,16 @@ counter equ $50
     ; tempo is 3 at PAL
 ;numer equ 18 ; PAL - 3.6
 ;denom equ 5
-numer equ 7  ; faster - 3.5 (smooth)
-denom equ 2
+;numer equ 7  ; faster - 3.5 (smooth)
+;denom equ 2
 ;numer equ 26 ; slower - 3.714
 ;denom equ 7
-;numer equ 27 ; slower - 3.714
+;numer equ 27 ; slower
 ;denom equ 7
 
     org $263
 tempopatch
+    ift 0
     ldx #$FF
 step
     lda #denom
@@ -1067,6 +1068,19 @@ step
     sta counter
     stx $33F9
     rts
+    els
+    ldx counter
+    mva tempotable,x $33F9
+    inx
+    cpx #8
+    sne:ldx #0
+    stx counter
+    rts
+
+tempotable
+    dta 3,3,2,3,3,3,2,3
+    ;dta 3,2,3,2,3,2,3,2
+    eif
 
 ;    org $2B5
 ;creditpatch
