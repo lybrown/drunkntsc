@@ -1,0 +1,67 @@
+Drunk Chessboard
+
+Executable has three start blocks that poke the following values:
+
+ SOUNDR ($41)   = 0 - disable SIO sound
+ SDMCTL (559)   = 0 - turn off screen
+ DMACTL ($D400) = 0
+
+Program starts at 401E.
+
+Program starts by decompressing 405A-7FDE to various parts of memory.
+Decompression routine has hooks for specifying new destination adresses
+mid-stream. It looks like a simple RLE compression.
+
+The end of the compressed stream self-modifies the decompression routine to
+jump to $B7CA.
+
+4037: 4C CA B7          JMP $B7CA    [$B7CA] = $A2
+
+That address is at $7FDD in the compressed block.
+
+Music Tempo:
+
+30DA: A9 04             LDA #$03
+30DC: 8D F9 33          STA $33F9    [$33F9]
+
+$30DB is uncompressed from 4144 at start
+
+Tempo conversion:
+
+    3/50 * 60 = 18/5
+
+Steadier but a little fast:
+
+    7/2
+
+Untouched RAM:
+
+  263 - 27F
+  2B5 - 2FF (Though 2E0-2E3 are RUNAD and INITAD)
+  D14 - DBF
+  FFC6 - FFF9
+
+Credits screen:
+
+  X register cycles 0 - FF - 0 which doesn't leave enough time for frame compute.
+
+  ; frame compute counter init
+  org FE8B
+  ldx $F0
+
+  ; display kernel counter init
+  org FEFC
+  ldx $F0
+
+  ; done frame, loop
+  org FF50
+  jmp $FE8B
+
+Vsync:
+
+  org $FEC8
+  lda #3
+  cmp:rne VCOUNT
+LFECF
+  lda $F5
+
