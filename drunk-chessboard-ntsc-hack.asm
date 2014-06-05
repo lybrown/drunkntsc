@@ -1054,7 +1054,15 @@ counter equ $50
 ;numer equ 27 ; slower
 ;denom equ 7
 
-    org $263
+    org $2000
+init
+    ldy #endcode-reloc-1
+    mva:rpl code,y reloc,y-
+    rts
+
+code
+    org r:$D14
+reloc
 tempopatch
     ift 0
     ldx #$FF
@@ -1082,7 +1090,6 @@ tempotable
     ;dta 3,2,3,2,3,2,3,2
     eif
 
-;    org $2B5
 ;creditpatch
 ;    ; shorten end credits height
 ;    ldx #$FF+262-312
@@ -1090,13 +1097,11 @@ tempotable
 ;    cmp:rne VCOUNT
 ;    jmp $FECF
 
-    org $2B5
 creditpatch
     mva #0 HPOSP0
     :3 sta HPOSP1+#
     jmp $FE8B
 
-    org $D14
 patch
     lda PAL
     and #$E
@@ -1124,6 +1129,10 @@ patch
 
 donepatch
     jmp $B7CA
+
+endcode
+
+    ini init
 
     org $2e0
     ; end $2e1
